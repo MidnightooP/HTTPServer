@@ -28,6 +28,10 @@ public class HttpStaticRequest extends HttpRequest {
 		
 		File f = new File(m_hs.getFolder() + resname);
 		if(f.exists()) {
+			if (f.isDirectory()) {
+				resp.setReplyError(400, resname + " is a directory");
+				return;
+			}	
 			resp.setReplyOk();
 			resp.setContentLength((int) f.length());
 			resp.setContentType(getContentType(resname));
