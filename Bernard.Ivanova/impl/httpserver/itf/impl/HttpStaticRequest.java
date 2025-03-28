@@ -1,5 +1,6 @@
 package httpserver.itf.impl;
 
+import java.io.File;
 import java.io.IOException;
 
 
@@ -16,12 +17,16 @@ public class HttpStaticRequest extends HttpRequest {
 		super(hs, method, ressname);
 	}
 	
-	private boolean exists() {
-		return true;
-	}
-	
 	public void process(HttpResponse resp) throws Exception {
-	// TO COMPLETE
+		File f = new File("./FILES/" + getRessname());
+		if(f.exists()) {
+			resp.setReplyOk();
+			resp.setContentLength((int) f.length());
+			resp.setContentType(getContentType(getRessname()));
+			resp.beginBody();
+		} else {
+			resp.setReplyError(404, "File not found");
+		}
 	}
 
 }
