@@ -1,8 +1,11 @@
 package httpserver.itf.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-
+import java.io.PrintStream;
 
 import httpserver.itf.HttpRequest;
 import httpserver.itf.HttpResponse;
@@ -18,12 +21,23 @@ public class HttpStaticRequest extends HttpRequest {
 	}
 	
 	public void process(HttpResponse resp) throws Exception {
-		File f = new File("./FILES/" + getRessname());
+		String resname = getRessname();
+		if(resname.equals("/")) {
+			resname = "/" + DEFAULT_FILE;
+		}
+		
+		File f = new File(m_hs.getFolder() + resname);
 		if(f.exists()) {
 			resp.setReplyOk();
 			resp.setContentLength((int) f.length());
-			resp.setContentType(getContentType(getRessname()));
-			resp.beginBody();
+			resp.setContentType(getContentType(resname));
+			PrintStream ps = resp.beginBody();
+			
+			/* get file content */
+			FileInputStream fis = new FileInputStream(f);
+			byte[] fileContent = new byte[(int) f.length()];
+			fileContent = fis.readAllBytes();
+			ps.write(fileContent);
 		} else {
 			resp.setReplyError(404, "File not found");
 		}
