@@ -16,6 +16,10 @@ public class HttpStaticRequest extends HttpRequest {
 		super(hs, method, ressname);
 	}
 	
+	private boolean exists() {
+		return true;
+	}
+	
 	public void process(HttpResponse resp) throws Exception {
 	// TO COMPLETE
 	}
