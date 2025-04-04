@@ -70,7 +70,11 @@ public class HttpServer {
 		String method = parseline.nextToken().toUpperCase(); 
 		String ressname = parseline.nextToken();
 		if (method.equals("GET")) {
-			request = new HttpStaticRequest(this, method, ressname);
+			if(!ressname.startsWith("/ricmlets")) {
+				request = new HttpStaticRequest(this, method, ressname);
+			} else {
+				request = new HttpRicmletRequestImpl(this, method, ressname,null); // changer le dernier argument du contructeur 
+			}
 		} else 
 			request = new UnknownRequest(this, method, ressname);
 		return request;
