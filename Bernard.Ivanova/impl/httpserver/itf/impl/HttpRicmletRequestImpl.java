@@ -2,6 +2,7 @@ package httpserver.itf.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
 
 import httpserver.itf.HttpResponse;
 import httpserver.itf.HttpRicmlet;
@@ -10,9 +11,12 @@ import httpserver.itf.HttpRicmletResponse;
 import httpserver.itf.HttpSession;
 
 public class HttpRicmletRequestImpl extends HttpRicmletRequest {
+	
+	private HashMap<String,String> args = new HashMap<String,String>();
 
 	public HttpRicmletRequestImpl(HttpServer hs, String method, String ressname, BufferedReader br) throws IOException {
 		super(hs, method, ressname, br);
+		processArgs();
 		// TODO Auto-generated constructor stub
 	}
 
@@ -24,22 +28,24 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 
 	@Override
 	public String getArg(String name) {
+		return args.get(name);
+	}
+	
+	private void processArgs() {
 		String ressname = getRessname();
 		
 		if (!ressname.contains("?"))
-			return null;
+			return;
 		
 		int args_ind = ressname.indexOf("?");
 		
-		String args = ressname.substring(args_ind);
-		String[] args_tab = args.split("&");
+		String args_str = ressname.substring(args_ind + 1);
+		String[] args_tab = args_str.split("&");
 		
-		for (String arg : args_tab) {
-			String[] arg_tab = arg.split("=");
-			if (name.equals(arg_tab[0]))
-				return arg_tab[1];
+		for (String arg_x : args_tab) {
+			String[] arg = arg_x.split("=");
+			args.put(arg[0], arg[1]);
 		}
-		return null;
 	}
 
 	@Override
