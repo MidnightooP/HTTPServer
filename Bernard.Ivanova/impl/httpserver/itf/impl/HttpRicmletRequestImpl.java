@@ -25,12 +25,13 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 	@Override
 	public String getArg(String name) {
 		String ressname = getRessname();
-		int endPath = ressname.lastIndexOf("/");
 		
-		String notPath = ressname.substring(endPath);
-		int endBasename = notPath.indexOf("?");
+		if (!ressname.contains("?"))
+			return null;
 		
-		String args = notPath.substring(endBasename);
+		int args_ind = ressname.indexOf("?");
+		
+		String args = ressname.substring(args_ind);
 		String[] args_tab = args.split("&");
 		
 		for (String arg : args_tab) {
@@ -54,7 +55,6 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 		String args = "";
 		if (name.contains("?")) {
 			int args_ind = name.indexOf("?");
-			args = name.substring(args_ind + 1);
 			name = name.substring(index, args_ind);
 		} else {
 			name = name.substring(index);

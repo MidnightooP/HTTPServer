@@ -1,9 +1,7 @@
 package httpserver.itf.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -42,6 +40,7 @@ public class HttpStaticRequest extends HttpRequest {
 			byte[] fileContent = new byte[(int) f.length()];
 			fileContent = fis.readAllBytes();
 			ps.write(fileContent);
+			fis.close();
 		} else {
 			resp.setReplyError(404, "File not found");
 		}
