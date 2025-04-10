@@ -2,10 +2,6 @@ package httpserver.itf;
 
 import java.io.IOException;
 
-import httpserver.itf.HttpRicmletRequest;
-import httpserver.itf.HttpRicmletResponse;
-
-
 /*
  * Interface provided by an object representing an ricmlet
  */

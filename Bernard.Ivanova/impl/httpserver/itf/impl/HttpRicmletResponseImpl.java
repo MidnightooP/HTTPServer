@@ -29,7 +29,7 @@ public class HttpRicmletResponseImpl implements HttpRicmletResponse {
 		m_ps.println("Date: " + new Date());
 		m_ps.println("Server: ricm-http 1.0");
 		m_ps.println(sendCookies());
-//		System.out.println(sendCookies());
+//		System.out.println(sendCookies() + "\n");
 	}
 
 	@Override
@@ -67,8 +67,9 @@ public class HttpRicmletResponseImpl implements HttpRicmletResponse {
 	}
 
 	private String sendCookies() {
+		String cookie = null;
 		if (!cookies.isEmpty()) {
-			String cookie = "Set-Cookie: ";
+			cookie = "Set-Cookie: ";
 			Set<String> keys = cookies.keySet();
 			Iterator<String> iter = keys.iterator();
 
@@ -78,10 +79,18 @@ public class HttpRicmletResponseImpl implements HttpRicmletResponse {
 				cookie += "=";
 				cookie += cookies.get(key);
 				cookie += ";";
-			}
-			return cookie;
+			}			
 		}
-		return null;
+		String session_id = m_hs.getSessionId();
+		if (session_id != null) {
+			if (cookie == null)
+				cookie = "Set-Cookie: ";
+			cookie += "session_id";
+			cookie += "=";
+			cookie += session_id;
+			cookie += ";";
+		}
+		return cookie;
 	}
 
 }

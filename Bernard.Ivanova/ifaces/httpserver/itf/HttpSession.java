@@ -1,5 +1,6 @@
 package httpserver.itf;
 
+import java.util.Date;
 
 /*
  * Interface provided by an object representing an HTTP session
@@ -22,4 +23,12 @@ public interface HttpSession {
 	 * Binds an object to this session, using the name specified.
 	 */
 	public void setValue(String key, Object value) ;
+
+	void setMaxInactiveInterval(int interval);
+
+	int getMaxInactiveInterval();
+
+	void updateLastAccess();
+
+	Date getLastAccessTime();
 }

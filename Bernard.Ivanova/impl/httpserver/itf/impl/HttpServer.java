@@ -7,12 +7,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import httpserver.itf.HttpRequest;
 import httpserver.itf.HttpResponse;
 import httpserver.itf.HttpRicmlet;
+import httpserver.itf.HttpSession;
 
 
 /**
@@ -32,6 +37,8 @@ public class HttpServer {
 	private ServerSocket m_ssoc;
 	
 	private HashMap<String, HttpRicmlet> instances = new HashMap<String, HttpRicmlet>();
+	private HashMap<String, HttpSession> sessions = new HashMap<String, HttpSession>();
+	private String session_id = null;
 
 	protected HttpServer(int port, String folderName) {
 		m_port = port;
@@ -51,8 +58,6 @@ public class HttpServer {
 		return m_folder;
 	}
 	
-	
-
 	public HttpRicmlet getInstance(String clsname)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, MalformedURLException, 
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
@@ -68,14 +73,51 @@ public class HttpServer {
 		return inst;
 	}
 
+	public void setSessionId(String session_id) {
+		this.session_id = session_id;
+	}
+	
+	public String getSessionId() {
+		return session_id;
+	}
 
-
+	
+	private void controlSession() {
+		if (sessions.isEmpty())
+			return;
+		Set<String> keys = sessions.keySet();
+		Iterator<String> iter = keys.iterator();
+		
+		LinkedList<String> todelete = new LinkedList<String>();
+		
+		while (iter.hasNext()) {
+			String currKey = iter.next();
+			HttpSession sess = sessions.get(currKey);
+			
+			Date now = new Date();
+			
+			Date last_acces = sess.getLastAccessTime();
+			
+			long duree_sans_acces = now.getTime() - last_acces.getTime();
+			
+			if (duree_sans_acces >= sess.getMaxInactiveInterval()) {
+				todelete.add(currKey);
+			}
+		}
+		
+		Iterator<String> iter2 = todelete.iterator();
+		while (iter2.hasNext()) {
+			sessions.remove(iter2.next());
+		}
+	}
 
 	/*
 	 * Reads a request on the given input stream and returns the corresponding HttpRequest object
 	 */
 	public HttpRequest getRequest(BufferedReader br) throws IOException {
 		HttpRequest request = null;
+		
+		controlSession();
 		
 		String startline = br.readLine();
 		StringTokenizer parseline = new StringTokenizer(startline);
@@ -103,6 +145,14 @@ public class HttpServer {
 		} else {
 			return new HttpResponseImpl(this, req, ps);
 		}
+	}
+	
+	public HttpSession getSession(String session_id) {
+		return sessions.get(session_id);
+	}
+	
+	public void setSession(String session_id, HttpSession session) {
+		sessions.put(session_id, session);
 	}
 
 

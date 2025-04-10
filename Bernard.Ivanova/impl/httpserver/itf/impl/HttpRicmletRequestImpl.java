@@ -3,8 +3,7 @@ package httpserver.itf.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.UUID;
 
 import httpserver.itf.HttpResponse;
 import httpserver.itf.HttpRicmlet;
@@ -16,19 +15,38 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 
 	private HashMap<String, String> args = new HashMap<String, String>();
 	private HashMap<String, String> cookies = new HashMap<String, String>();
+	
+	HttpSessionImpl session;
 
 
 	public HttpRicmletRequestImpl(HttpServer hs, String method, String ressname, BufferedReader br) throws IOException {
 		super(hs, method, ressname, br);
 		parseArgs();
 		parseCookies(br);
-		// TODO Auto-generated constructor stub
+				
+		if (!cookies.containsKey("session_id")) {
+			HttpSessionImpl new_Session = new HttpSessionImpl(UUID.randomUUID().toString());
+			hs.setSession(new_Session.getId(),new_Session);
+			session = (HttpSessionImpl) hs.getSession(new_Session.getId());
+			cookies.put("session_id", session.getId());
+			System.out.println("new session");
+		} else {
+			String session_id = (String) this.cookies.get("session_id");
+			this.session = (HttpSessionImpl) hs.getSession(session_id);
+			if (session == null) {
+				HttpSessionImpl new_Session = new HttpSessionImpl(UUID.randomUUID().toString());
+				hs.setSession(new_Session.getId(),new_Session);
+				session = (HttpSessionImpl) hs.getSession(new_Session.getId());
+				cookies.replace("session_id", session.getId());
+			}
+		}
+		m_hs.setSessionId(session.getId());
+//		System.out.println(session.getValue("counter"));
 	}
 
 	@Override
 	public HttpSession getSession() {
-		// TODO Auto-generated method stub
-		return null;
+		return session;
 	}
 	
 	@Override
@@ -37,9 +55,9 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 	}
 	
 	private void parseCookies(BufferedReader br) throws IOException {
-		
 		String line;
 		while ((line = br.readLine()) != null && !line.isEmpty()) {
+//			System.out.println(line);
 			
 			if (!line.startsWith("Cookie:"))
 				continue;
