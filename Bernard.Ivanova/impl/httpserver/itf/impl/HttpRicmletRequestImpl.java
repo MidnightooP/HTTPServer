@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import httpserver.itf.HttpResponse;
+import httpserver.itf.HttpRicmlet;
 import httpserver.itf.HttpRicmletRequest;
+import httpserver.itf.HttpRicmletResponse;
 import httpserver.itf.HttpSession;
 
 public class HttpRicmletRequestImpl extends HttpRicmletRequest {
@@ -22,7 +24,20 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 
 	@Override
 	public String getArg(String name) {
-		// TODO Auto-generated method stub
+		String ressname = getRessname();
+		int endPath = ressname.lastIndexOf("/");
+		
+		String notPath = ressname.substring(endPath);
+		int endBasename = notPath.indexOf("?");
+		
+		String args = notPath.substring(endBasename);
+		String[] args_tab = args.split("&");
+		
+		for (String arg : args_tab) {
+			String[] arg_tab = arg.split("=");
+			if (name.equals(arg_tab[0]))
+				return arg_tab[1];
+		}
 		return null;
 	}
 
@@ -31,11 +46,26 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
 	public void process(HttpResponse resp) throws Exception {
-		// TODO Auto-generated method stub
-
+		String name = m_ressname;
+		int index = name.indexOf("/", 1) + 1;
+		String args = "";
+		if (name.contains("?")) {
+			int args_ind = name.indexOf("?");
+			args = name.substring(args_ind + 1);
+			name = name.substring(index, args_ind);
+		} else {
+			name = name.substring(index);
+		}
+		name = name.replaceAll("/", ".");
+		HttpRicmlet instance = m_hs.getInstance(name);
+		if (instance != null) {
+			instance.doGet(this, (HttpRicmletResponse) resp);
+		} else {
+			resp.setReplyError(404, "Ricmlet not found");
+		}
 	}
 
 }
