@@ -57,7 +57,7 @@ public class HttpServer {
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, MalformedURLException, 
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		HttpRicmlet inst = null;
-		System.out.println(clsname);
+//		System.out.println(clsname);
 		if (instances.containsKey(clsname)) {
 			inst = instances.get(clsname);
 		} else {
@@ -85,7 +85,7 @@ public class HttpServer {
 			if(!ressname.startsWith("/ricmlets")) {
 				request = new HttpStaticRequest(this, method, ressname);
 			} else {
-				request = new HttpRicmletRequestImpl(this, method, ressname,null); // changer le dernier argument du contructeur 
+				request = new HttpRicmletRequestImpl(this, method, ressname, br);
 			}
 		} else 
 			request = new UnknownRequest(this, method, ressname);
